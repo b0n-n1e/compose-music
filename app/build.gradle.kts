@@ -36,6 +36,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":center"))
+    implementation(project(":utils"))
+    implementation (libs.hilt.android)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
