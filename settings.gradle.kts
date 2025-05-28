@@ -41,3 +41,4 @@ dependencyResolutionManagement {
 rootProject.name = "compose-music"
 include(":app")
 include(":center")
+include(":utils")
