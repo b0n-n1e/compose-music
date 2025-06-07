@@ -17,7 +17,7 @@
         android:usesCleartextTraffic= "true">
 
         <activity
-            android:name="com.loki.center.MainActivity"
+            android:name="com.loki.center.CenterActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Composemusic">

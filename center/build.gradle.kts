@@ -41,7 +41,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     //compose
-    implementation(libs.material)
+    implementation(libs.androidx.material)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -54,6 +54,9 @@ dependencies {
     implementation (libs.hilt.android)
     implementation (libs.androidx.hilt.lifecycle.viewmodel)
     implementation (libs.androidx.hilt.navigation.compose)
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
