@@ -37,6 +37,8 @@ android {
 
 dependencies {
 
+    implementation(project(":utils"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
@@ -57,6 +59,11 @@ dependencies {
 
     //navigation
     implementation(libs.androidx.navigation.compose)
+
+    //SystemUiController
+    implementation(libs.accompanist.systemuicontroller)
+    implementation (libs.accompanist.insets)
+    implementation (libs.accompanist.insets.ui)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
