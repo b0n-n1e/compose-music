@@ -25,13 +25,13 @@ import com.loki.center.navigation.center.BottomBarWidget
 import com.loki.center.navigation.center.Screen
 import com.loki.center.search.SearchScreen
 import com.loki.center.ui.theme.ComposeMusicTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CenterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
-        
         setContent {
             ComposeMusicTheme {
                 CenterScreen()

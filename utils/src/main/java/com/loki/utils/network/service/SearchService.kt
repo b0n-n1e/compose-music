@@ -1,13 +1,16 @@
 package com.loki.utils.network.service
 
-import com.loki.utils.network.ApiConstant.BASE_URL
-import com.loki.utils.network.bean.search.SearchBody
+import com.loki.utils.network.ApiConstant
 import com.loki.utils.network.bean.search.SearchResponse
-import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface SearchService {
 
-    @GET(BASE_URL)
-    suspend fun getSearchData(@Body searchBody: SearchBody) : SearchResponse
+    @GET(ApiConstant.Search.API_SEARCH)
+    suspend fun searchSongs(
+        @Query("keywords") keyword: String,
+        @Query("limit") limit: Int = 30,
+        @Query("offset") offset: Int = 0
+    ): SearchResponse
 }
