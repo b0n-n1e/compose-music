@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.loki.center.CenterViewModel
 import com.loki.center.ui.theme.ComposeMusicTheme
 import com.loki.utils.extension.limitLength
 import com.loki.utils.network.bean.search.Song
@@ -29,10 +28,12 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.collectLatest
 
+const val SEARCH_DELAY : Long = 1000
+
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun SearchScreen(
-    viewModel: CenterViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel()
 ) {
     var searchText by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
@@ -41,9 +42,9 @@ fun SearchScreen(
 
     // 防抖搜索
     LaunchedEffect(searchText) {
-        snapshotFlow { searchText }.debounce(1000).collectLatest { keyword ->
+        snapshotFlow { searchText }.debounce(SEARCH_DELAY).collectLatest { keyword ->
                 viewModel.search(keyword)
-            }
+        }
     }
 
     Box(
