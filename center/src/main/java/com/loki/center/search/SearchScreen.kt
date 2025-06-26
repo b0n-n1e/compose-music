@@ -22,28 +22,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.loki.center.ui.theme.ComposeMusicTheme
+import com.loki.center.architecture.HandleEffects
 import com.loki.utils.extension.limitLength
 import com.loki.utils.network.bean.search.Song
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.collectLatest
+import com.loki.center.search.*
 
 const val SEARCH_DELAY : Long = 1000
 
-@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel()
 ) {
-    var searchText by remember { mutableStateOf("") }
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.viewState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
+    // 处理Effect
+    HandleEffects(
+        effects = viewModel.effect,
+        onEffect = { effect ->
+            when (effect) {
+                SearchEffect.HideKeyboard -> {
+                    keyboardController?.hide()
+                }
+                SearchEffect.ClearFocus -> {
+                    focusManager.clearFocus()
+                }
+                is SearchEffect.ShowError -> {
+                }
+                is SearchEffect.ShowToast -> {
+                }
+            }
+        }
+    )
+
     // 防抖搜索
-    LaunchedEffect(searchText) {
-        snapshotFlow { searchText }.debounce(SEARCH_DELAY).collectLatest { keyword ->
-                viewModel.search(keyword)
+    LaunchedEffect(state.searchKeyword) {
+        snapshotFlow { state.searchKeyword }.debounce(SEARCH_DELAY).collectLatest { keyword ->
+            if (keyword.isNotBlank()) {
+                viewModel.sendIntent(SearchIntent.SearchSongs(keyword))
+            }
         }
     }
 
@@ -53,8 +75,7 @@ fun SearchScreen(
             .background(ComposeMusicTheme.colors.background)
             .clickable(
                 indication = null, interactionSource = remember { MutableInteractionSource() }) {
-                keyboardController?.hide()
-                focusManager.clearFocus()
+                viewModel.sendIntent(SearchIntent.DismissKeyboard)
             }) {
         Column(
             modifier = Modifier
@@ -62,26 +83,36 @@ fun SearchScreen(
                 .padding(16.dp)
         ) {
             OutlinedTextField(
-                value = searchText,
-                onValueChange = { searchText = it },
+                value = state.searchKeyword,
+                onValueChange = { keyword ->
+                    viewModel.sendIntent(SearchIntent.UpdateSearchKeyword(keyword))
+                },
                 label = { Text("搜索歌曲") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
                     onSearch = {
-                        viewModel.search(searchText)
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
+                        viewModel.sendIntent(SearchIntent.SearchSongs(state.searchKeyword))
+                        viewModel.sendIntent(SearchIntent.DismissKeyboard)
                     }))
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (uiState.isLoading) {
+            // 错误状态显示
+            state.errorMessage?.let { errorMessage ->
+                Text(
+                    text = errorMessage,
+                    color = androidx.compose.ui.graphics.Color.Red,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
                 LazyColumn {
-                    items(uiState.searchResults, key = { it.id ?: it.hashCode() }) { song ->
+                    items(state.searchResults, key = { it.id ?: it.hashCode() }) { song ->
                         SongItem(song = song)
                     }
                 }

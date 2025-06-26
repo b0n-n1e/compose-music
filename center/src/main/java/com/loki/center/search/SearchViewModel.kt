@@ -1,46 +1,115 @@
 package com.loki.center.search
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.loki.utils.network.bean.search.Song
+import com.loki.center.architecture.MviViewModel
 import com.loki.utils.network.service.SearchService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-
-data class SearchUiState(
-    val searchResults: List<Song> = emptyList(),
-    val isLoading: Boolean = false
-)
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchService: SearchService
-) : ViewModel() {
+) : MviViewModel<SearchState, SearchIntent, SearchEffect>() {
 
-    private val _uiState = MutableStateFlow(SearchUiState())
-    val uiState = _uiState.asStateFlow()
+    private val _intent = MutableSharedFlow<SearchIntent>()
+    val intent = _intent.asSharedFlow()
 
-    fun search(keyword: String) {
+    init {
+        viewModelScope.launch {
+            handleIntents()
+        }
+    }
+
+    override fun createInitialState(): SearchState = SearchState()
+
+    override suspend fun handleIntents() {
+        intent.collect { intent ->
+            when (intent) {
+                is SearchIntent.SearchSongs -> {
+                    searchSongs(intent.keyword)
+                }
+                is SearchIntent.UpdateSearchKeyword -> {
+                    updateSearchKeyword(intent.keyword)
+                }
+                is SearchIntent.ClearSearch -> {
+                    clearSearch()
+                }
+                is SearchIntent.RetrySearch -> {
+                    retrySearch()
+                }
+                is SearchIntent.DismissKeyboard -> {
+                    setEffect { SearchEffect.HideKeyboard }
+                    setEffect { SearchEffect.ClearFocus }
+                }
+            }
+        }
+    }
+
+    // 发送Intent的方法
+    fun sendIntent(searchIntent: SearchIntent) {
+        viewModelScope.launch {
+            _intent.emit(searchIntent)
+        }
+    }
+
+    private fun searchSongs(keyword: String) {
         if (keyword.isBlank()) {
-            _uiState.value = SearchUiState()
+            setState { copy(searchResults = emptyList(), isLoading = false, errorMessage = null) }
             return
         }
 
+        setState { copy(isLoading = true, errorMessage = null) }
+        
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
             try {
                 val response = searchService.searchSongs(keyword = keyword)
-                _uiState.value = _uiState.value.copy(
-                    searchResults = response.result?.songs ?: emptyList(),
-                    isLoading = false
-                )
+                setState { 
+                    copy(
+                        searchResults = response.result?.songs ?: emptyList(),
+                        isLoading = false,
+                        searchKeyword = keyword
+                    )
+                }
+                
+                if (response.result?.songs.isNullOrEmpty()) {
+                    setEffect { SearchEffect.ShowToast("未找到相关歌曲") }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                setState { 
+                    copy(
+                        isLoading = false, 
+                        errorMessage = "搜索失败: ${e.message}"
+                    )
+                }
+                setEffect { SearchEffect.ShowError("搜索失败: ${e.message}") }
             }
+        }
+    }
+
+    private fun updateSearchKeyword(keyword: String) {
+        setState { copy(searchKeyword = keyword) }
+    }
+
+    private fun clearSearch() {
+        setState { 
+            copy(
+                searchResults = emptyList(),
+                searchKeyword = "",
+                errorMessage = null
+            )
+        }
+        setEffect { SearchEffect.HideKeyboard }
+        setEffect { SearchEffect.ClearFocus }
+    }
+
+    private fun retrySearch() {
+        val currentKeyword = viewState.value.searchKeyword
+        if (currentKeyword.isNotBlank()) {
+            searchSongs(currentKeyword)
         }
     }
 }
