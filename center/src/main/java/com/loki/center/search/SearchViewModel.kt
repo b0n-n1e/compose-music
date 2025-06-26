@@ -57,11 +57,22 @@ class SearchViewModel @Inject constructor(
 
     private fun searchSongs(keyword: String) {
         if (keyword.isBlank()) {
-            setState { copy(searchResults = emptyList(), isLoading = false, errorMessage = null) }
+            setState {
+                copy(
+                    searchResults = emptyList(),
+                    isLoading = false,
+                    errorMessage = null
+                )
+            }
             return
         }
 
-        setState { copy(isLoading = true, errorMessage = null) }
+        setState {
+            copy(
+                isLoading = true,
+                errorMessage = null
+            )
+        }
         
         viewModelScope.launch {
             try {

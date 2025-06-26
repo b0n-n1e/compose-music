@@ -5,9 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -18,6 +21,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,7 +35,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.collectLatest
 import com.loki.center.search.*
 
-const val SEARCH_DELAY : Long = 1000
+const val SEARCH_DELAY: Long = 1000
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -49,12 +54,17 @@ fun SearchScreen(
                 SearchEffect.HideKeyboard -> {
                     keyboardController?.hide()
                 }
+
                 SearchEffect.ClearFocus -> {
                     focusManager.clearFocus()
                 }
+
                 is SearchEffect.ShowError -> {
+
                 }
+
                 is SearchEffect.ShowToast -> {
+
                 }
             }
         }
@@ -62,11 +72,14 @@ fun SearchScreen(
 
     // 防抖搜索
     LaunchedEffect(state.searchKeyword) {
-        snapshotFlow { state.searchKeyword }.debounce(SEARCH_DELAY).collectLatest { keyword ->
-            if (keyword.isNotBlank()) {
-                viewModel.sendIntent(SearchIntent.SearchSongs(keyword))
+        snapshotFlow {
+            state.searchKeyword
+        }.debounce(SEARCH_DELAY)
+            .collectLatest { keyword ->
+                if (keyword.isNotBlank()) {
+                    viewModel.sendIntent(SearchIntent.SearchSongs(keyword))
+                }
             }
-        }
     }
 
     Box(
@@ -95,7 +108,8 @@ fun SearchScreen(
                     onSearch = {
                         viewModel.sendIntent(SearchIntent.SearchSongs(state.searchKeyword))
                         viewModel.sendIntent(SearchIntent.DismissKeyboard)
-                    }))
+                    })
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -112,8 +126,20 @@ fun SearchScreen(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
                 LazyColumn {
-                    items(state.searchResults, key = { it.id ?: it.hashCode() }) { song ->
+                    itemsIndexed(
+                        items = state.searchResults,
+                        key = { _, item -> item.id ?: item.hashCode() }
+                    ) { index, song ->
                         SongItem(song = song)
+                        if (index < state.searchResults.lastIndex) {
+                            Divider(
+                                color = ComposeMusicTheme.colors.divider,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    end = 16.dp
+                                ) // Indent divider to align with text
+                            )
+                        }
                     }
                 }
             }
@@ -123,27 +149,35 @@ fun SearchScreen(
 
 @Composable
 fun SongItem(song: Song) {
-    val songName = (song.name ?: "Unknown Song").limitLength(20)
+    val songName = (song.name ?: "Unknown Song").limitLength(25)
     val artistNames =
-        (
-            (song.artists?.joinToString{ it.name ?: "" }) ?: "Unknown Artist"
-        ).limitLength(20)
+        (song.artists?.joinToString { it.name ?: "" } ?: "Unknown Artist").limitLength(30)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .clickable { /* TODO: Play song or navigate to detail */ }
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = songName,
                 color = ComposeMusicTheme.colors.textPrimary,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = artistNames,
                 color = ComposeMusicTheme.colors.textSecondary,
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
