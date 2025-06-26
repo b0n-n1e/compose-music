@@ -2,6 +2,7 @@ package com.loki.center.home
 
 import androidx.lifecycle.viewModelScope
 import com.loki.center.architecture.MviViewModel
+import com.loki.utils.network.service.HomeService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -10,7 +11,9 @@ import kotlinx.coroutines.launch
 import com.loki.center.home.*
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : MviViewModel<HomeState, HomeIntent, HomeEffect>() {
+class HomeViewModel @Inject constructor(
+    private val homeService: HomeService
+) : MviViewModel<HomeState, HomeIntent, HomeEffect>() {
 
     private val _intent = MutableSharedFlow<HomeIntent>()
     val intent = _intent.asSharedFlow()
@@ -26,11 +29,14 @@ class HomeViewModel @Inject constructor() : MviViewModel<HomeState, HomeIntent, 
     override suspend fun handleIntents() {
         intent.collect { intent ->
             when (intent) {
-                is HomeIntent.LoadHomeData -> {
-                    loadHomeData()
+                is HomeIntent.FetchBanners -> {
+                    fetchBanners()
                 }
                 is HomeIntent.RefreshHome -> {
                     refreshHome()
+                }
+                is HomeIntent.BannerClicked -> {
+                    setEffect { HomeEffect.NavigateToWeb(intent.url) }
                 }
             }
         }
@@ -43,16 +49,30 @@ class HomeViewModel @Inject constructor() : MviViewModel<HomeState, HomeIntent, 
         }
     }
 
-    private fun loadHomeData() {
-        setState { copy(isLoading = true) }
-        // TODO: 加载首页数据
-        setState { copy(isLoading = false) }
+    fun setEffect(effect: HomeEffect) {
+        viewModelScope.launch {
+            _effect.emit(effect)
+        }
+    }
+
+    private fun fetchBanners() {
+        if (viewState.value.banners.isNotEmpty()) return // Avoid refetching
+        setState { copy(isLoading = true, errorMessage = null) }
+        viewModelScope.launch {
+            try {
+                val response = homeService.getBanners()
+                val validBanners = response.banners?.filterNotNull() ?: emptyList()
+                setState { copy(isLoading = false, banners = validBanners) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                setState { copy(isLoading = false, errorMessage = "无法加载轮播图: ${e.message}") }
+            }
+        }
     }
 
     private fun refreshHome() {
-        setState { copy(isLoading = true) }
-        // TODO: 刷新首页数据
-        setState { copy(isLoading = false) }
+        setState { copy(isLoading = true, errorMessage = null, banners = emptyList()) }
+        fetchBanners()
         setEffect { HomeEffect.ShowToast("首页已刷新") }
     }
 } 

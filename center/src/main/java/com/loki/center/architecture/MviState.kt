@@ -39,7 +39,7 @@ abstract class MviViewModel<State : MviState, Intent : MviIntent, Effect : MviEf
     private val _viewState: MutableStateFlow<State> = MutableStateFlow(initialState)
     val viewState: StateFlow<State> = _viewState.asStateFlow()
 
-    private val _effect: MutableSharedFlow<Effect> = MutableSharedFlow()
+    val _effect: MutableSharedFlow<Effect> = MutableSharedFlow()
     val effect: SharedFlow<Effect> = _effect.asSharedFlow()
 
     abstract suspend fun handleIntents()

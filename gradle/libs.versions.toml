@@ -3,8 +3,10 @@ accompanistSystemuicontroller = "0.36.0"
 agp = "8.10.1"
 converterGson = "3.0.0"
 
+accompanistPager = "0.23.1"
+coilCompose = "2.1.0"
+
 hiltAndroidGradlePlugin = "2.56.2"
-hiltLifecycleViewmodel = "1.0.0-alpha03"
 hiltComplier = "1.0.0"
 
 kotlin = "2.0.21"
@@ -52,6 +54,9 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "runtimeAndroid" }
+accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
+accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistPager" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

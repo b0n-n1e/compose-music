@@ -7,4 +7,8 @@ object ApiConstant {
     object Search{
         const val API_SEARCH = "search"
     }
+
+    object Banner{
+        const val API_BANNER = "banner"
+    }
 }

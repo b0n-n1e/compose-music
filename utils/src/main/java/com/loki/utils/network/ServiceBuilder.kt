@@ -10,6 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import com.loki.utils.network.service.SearchService
+import com.loki.utils.network.service.HomeService
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,5 +42,11 @@ object ServiceBuilder {
     @Singleton
     fun provideSearchService(retrofit: Retrofit): SearchService {
         return retrofit.create(SearchService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeService(retrofit: Retrofit): HomeService {
+        return retrofit.create(HomeService::class.java)
     }
 }
