@@ -1,9 +1,9 @@
 package com.loki.center.mine
 
-import com.loki.center.architecture.MviState
-import com.loki.center.architecture.MviIntent
-import com.loki.center.architecture.MviEffect
-import com.loki.center.architecture.ToastEffect
+import com.loki.center.common.mvi.MviState
+import com.loki.center.common.mvi.MviIntent
+import com.loki.center.common.mvi.MviEffect
+import com.loki.center.common.mvi.ToastEffect
 
 // State: UI状态
 data class MineState(

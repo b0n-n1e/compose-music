@@ -20,3 +20,6 @@ fun String.limitLength(maxLength: Int): String {
 fun Context.showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
 }
+
+val <T : Any> T.TAG: String
+    get() = this::class.java.simpleName

@@ -1,9 +1,9 @@
 package com.loki.center.search
 
-import com.loki.center.architecture.MviState
-import com.loki.center.architecture.MviIntent
-import com.loki.center.architecture.MviEffect
-import com.loki.center.architecture.ToastEffect
+import com.loki.center.common.mvi.MviState
+import com.loki.center.common.mvi.MviIntent
+import com.loki.center.common.mvi.MviEffect
+import com.loki.center.common.mvi.ToastEffect
 import com.loki.utils.network.bean.search.Song
 
 // State: UI状态

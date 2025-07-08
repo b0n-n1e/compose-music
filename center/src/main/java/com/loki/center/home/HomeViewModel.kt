@@ -1,14 +1,13 @@
 package com.loki.center.home
 
 import androidx.lifecycle.viewModelScope
-import com.loki.center.architecture.MviViewModel
+import com.loki.center.common.mvi.MviViewModel
 import com.loki.utils.network.service.HomeService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import com.loki.center.home.*
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(

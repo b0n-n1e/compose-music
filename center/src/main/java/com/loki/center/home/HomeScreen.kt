@@ -26,6 +26,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.loki.center.architecture.HandleEffects
 import com.loki.center.ui.theme.ComposeMusicTheme
 import com.loki.utils.network.bean.home.Banner
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -40,7 +41,7 @@ fun HomeScreen(
         onEffect = { effect ->
             when (effect) {
                 is HomeEffect.NavigateToWeb -> {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(effect.url))
+                    val intent = Intent(Intent.ACTION_VIEW, effect.url.toUri())
                     context.startActivity(intent)
                 }
                 is HomeEffect.ShowToast -> {

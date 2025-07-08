@@ -49,4 +49,10 @@ object ServiceBuilder {
     fun provideHomeService(retrofit: Retrofit): HomeService {
         return retrofit.create(HomeService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideLoginService(retrofit: Retrofit): com.loki.utils.network.service.LoginService {
+        return retrofit.create(com.loki.utils.network.service.LoginService::class.java)
+    }
 }

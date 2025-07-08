@@ -1,4 +1,4 @@
-package com.loki.center.architecture
+package com.loki.center.common.mvi
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

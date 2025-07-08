@@ -1,13 +1,12 @@
 package com.loki.center.mine
 
 import androidx.lifecycle.viewModelScope
-import com.loki.center.architecture.MviViewModel
+import com.loki.center.common.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import com.loki.center.mine.*
 
 @HiltViewModel
 class MineViewModel @Inject constructor() : MviViewModel<MineState, MineIntent, MineEffect>() {

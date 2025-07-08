@@ -1,7 +1,7 @@
 package com.loki.center.search
 
 import androidx.lifecycle.viewModelScope
-import com.loki.center.architecture.MviViewModel
+import com.loki.center.common.mvi.MviViewModel
 import com.loki.utils.network.service.SearchService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
