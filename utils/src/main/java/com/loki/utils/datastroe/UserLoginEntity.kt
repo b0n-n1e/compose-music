@@ -11,5 +11,4 @@ data class UserLoginEntity(
     val userId: Long? = null,
     val nickname: String? = null,
     val avatarUrl: String? = null
-    // 可扩展更多字段，如userId、nickname、avatar等
 ) 

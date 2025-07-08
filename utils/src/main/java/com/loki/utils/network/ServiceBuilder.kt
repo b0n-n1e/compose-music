@@ -12,6 +12,7 @@ import javax.inject.Singleton
 import com.loki.utils.network.service.SearchService
 import com.loki.utils.network.service.HomeService
 import com.loki.utils.network.service.UserService
+import com.loki.utils.datastroe.UserManager
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -22,6 +23,14 @@ object ServiceBuilder {
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient
             .Builder()
+            .addInterceptor { chain ->
+                val requestBuilder = chain.request().newBuilder()
+                val cookie = UserManager.cookie.value
+                if (!cookie.isNullOrEmpty()) {
+                    requestBuilder.addHeader("cookie", cookie)
+                }
+                chain.proceed(requestBuilder.build())
+            }
             .readTimeout(30, TimeUnit.SECONDS)
             .connectTimeout(30, TimeUnit.SECONDS)
             .build()

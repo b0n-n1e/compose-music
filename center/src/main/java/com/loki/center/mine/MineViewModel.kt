@@ -1,5 +1,6 @@
 package com.loki.center.mine
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.loki.center.common.mvi.MviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import com.loki.utils.network.service.UserService
 import com.loki.utils.datastroe.UserManager
+import com.loki.utils.extension.TAG
 import kotlinx.coroutines.Dispatchers
 
 @HiltViewModel
@@ -67,8 +69,25 @@ class MineViewModel @Inject constructor(
     }
 
     private fun logout() {
-        setState { copy(isLoggedIn = false, userName = "用户") }
-        setEffect { MineEffect.ShowToast("已退出登录") }
+        setState { copy(isLoading = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                userService.logout() // 先请求后端，自动带cookie
+            } catch (e: Exception) {
+                // 可忽略或提示
+            }
+            UserManager.logout() // 再清空本地
+            setState {
+                copy(
+                    isLoading = false,
+                    isLoggedIn = false,
+                    userName = "用户",
+                    userId = null,
+                    avatarUrl = null
+                )
+            }
+            setEffect { MineEffect.ShowToast("已退出登录") }
+        }
     }
 
     private fun refreshProfile() {
@@ -91,6 +110,7 @@ class MineViewModel @Inject constructor(
                     nickname = detailResp.profile?.nickname
                     avatarUrl = detailResp.profile?.avatarUrl
                 }
+                Log.d(this@MineViewModel.TAG, "handleLogin: $nickname + $avatarUrl + $uid")
                 UserManager.login(cookie, uid, nickname, avatarUrl)
                 setState {
                     copy(
