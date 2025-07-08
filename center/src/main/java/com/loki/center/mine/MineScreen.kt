@@ -1,7 +1,6 @@
 package com.loki.center.mine
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,13 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,49 +26,61 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.loki.center.ui.widget.CollapsingToolbar
-import com.loki.center.mine.QrLoginDialog
-import com.loki.center.mine.QrLoginViewModel
-import com.loki.center.mine.QrScreen
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MineScreen() {
-    // 假设用remember保存登录状态和cookie，后续可用ViewModel/Repository全局管理
-    var isLoggedIn by remember { mutableStateOf(false) }
-    var userCookie by remember { mutableStateOf("") }
+fun MineScreen(
+    viewModel: MineViewModel = hiltViewModel()
+) {
+    val state by viewModel.viewState.collectAsState()
 
-    if (!isLoggedIn) {
+    if (!state.isLoggedIn) {
         QrScreen(
             onLoginSuccess = { cookie ->
-                userCookie = cookie
-                isLoggedIn = true
-                // TODO: 持久化cookie，拉取用户信息
+                viewModel.sendIntent(MineIntent.LoginWithCookie(cookie))
             }
         )
     } else {
-        // 已登录，展示用户信息
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // 这里可以展示头像、昵称等
-            Text(text = "已登录", style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Cookie: $userCookie", color = Color.Gray)
-            Spacer(modifier = Modifier.height(32.dp))
-            Button(onClick = {
-                // 退出登录
-                isLoggedIn = false
-                userCookie = ""
-                // TODO: 清除本地cookie和用户信息
-            }) {
-                Text("退出登录")
+        CollapsingToolbar(
+            header = {
+                HeaderContent(
+                    username = state.userName,
+                    userAvatarUrl = state.avatarUrl ?: "",
+                    backgroundUrl = ""
+                )
+            },
+            toolbar = {
+                ToolbarContent(
+                    username = state.userName,
+                    userAvatarUrl = state.avatarUrl ?: ""
+                )
+            },
+            body = {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "已登录", style = MaterialTheme.typography.titleLarge)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(text = "昵称: ${state.userName}", color = Color.Gray)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "UID: ${state.userId ?: "-"}", color = Color.Gray)
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Button(onClick = {
+                            viewModel.sendIntent(MineIntent.Logout)
+                        }) {
+                            Text("退出登录")
+                        }
+                    }
+                }
             }
-        }
+        )
     }
 }
 

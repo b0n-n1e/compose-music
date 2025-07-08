@@ -7,9 +7,14 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import com.loki.utils.network.service.UserService
+import com.loki.utils.datastroe.UserManager
+import kotlinx.coroutines.Dispatchers
 
 @HiltViewModel
-class MineViewModel @Inject constructor() : MviViewModel<MineState, MineIntent, MineEffect>() {
+class MineViewModel @Inject constructor(
+    private val userService: UserService
+) : MviViewModel<MineState, MineIntent, MineEffect>() {
 
     private val _intent = MutableSharedFlow<MineIntent>()
     val intent = _intent.asSharedFlow()
@@ -36,6 +41,9 @@ class MineViewModel @Inject constructor() : MviViewModel<MineState, MineIntent, 
                 }
                 is MineIntent.RefreshProfile -> {
                     refreshProfile()
+                }
+                is MineIntent.LoginWithCookie -> {
+                    handleLogin(intent.cookie)
                 }
             }
         }
@@ -68,5 +76,36 @@ class MineViewModel @Inject constructor() : MviViewModel<MineState, MineIntent, 
         // TODO: 刷新用户资料
         setState { copy(isLoading = false) }
         setEffect { MineEffect.ShowToast("资料已更新") }
+    }
+
+    private fun handleLogin(cookie: String) {
+        setState { copy(isLoading = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val accountResp = userService.getAccount()
+                val uid = accountResp.profile?.userId
+                var nickname: String? = null
+                var avatarUrl: String? = null
+                if (uid != null) {
+                    val detailResp = userService.getUserDetail(uid)
+                    nickname = detailResp.profile?.nickname
+                    avatarUrl = detailResp.profile?.avatarUrl
+                }
+                UserManager.login(cookie, uid, nickname, avatarUrl)
+                setState {
+                    copy(
+                        isLoading = false,
+                        isLoggedIn = true,
+                        userName = nickname ?: "-",
+                        userId = uid,
+                        avatarUrl = avatarUrl
+                    )
+                }
+                setEffect { MineEffect.ShowToast("登录成功") }
+            } catch (e: Exception) {
+                setState { copy(isLoading = false) }
+                setEffect { MineEffect.ShowToast("登录失败: ${e.message}") }
+            }
+        }
     }
 } 

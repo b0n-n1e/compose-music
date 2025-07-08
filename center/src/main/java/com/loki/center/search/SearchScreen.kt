@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.loki.center.ui.theme.ComposeMusicTheme
-import com.loki.center.architecture.HandleEffects
+import com.loki.center.common.mvi.HandleEffects
 import com.loki.utils.extension.limitLength
 import com.loki.utils.network.bean.search.Song
 import kotlinx.coroutines.FlowPreview

@@ -32,4 +32,19 @@ class LoginRepository private constructor(context: Context) {
     suspend fun clearCookie() = withContext(Dispatchers.IO) {
         userLoginDao.clearAll()
     }
+
+    suspend fun saveUserInfo(cookie: String, userId: Long?, nickname: String?, avatarUrl: String?) = withContext(Dispatchers.IO) {
+        userLoginDao.insertLogin(
+            UserLoginEntity(
+                cookie = cookie,
+                userId = userId,
+                nickname = nickname,
+                avatarUrl = avatarUrl
+            )
+        )
+    }
+
+    suspend fun getLatestUserInfo(): UserLoginEntity? = withContext(Dispatchers.IO) {
+        userLoginDao.getLatestLogin()
+    }
 } 

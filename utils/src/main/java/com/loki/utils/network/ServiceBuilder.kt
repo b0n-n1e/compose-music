@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import com.loki.utils.network.service.SearchService
 import com.loki.utils.network.service.HomeService
+import com.loki.utils.network.service.UserService
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -54,5 +55,11 @@ object ServiceBuilder {
     @Singleton
     fun provideLoginService(retrofit: Retrofit): com.loki.utils.network.service.LoginService {
         return retrofit.create(com.loki.utils.network.service.LoginService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserService(retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
     }
 }

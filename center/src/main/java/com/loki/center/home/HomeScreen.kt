@@ -1,7 +1,6 @@
 package com.loki.center.home
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,7 +22,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
-import com.loki.center.architecture.HandleEffects
+import com.loki.center.common.mvi.HandleEffects
 import com.loki.center.ui.theme.ComposeMusicTheme
 import com.loki.utils.network.bean.home.Banner
 import androidx.core.net.toUri

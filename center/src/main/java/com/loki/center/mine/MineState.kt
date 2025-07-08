@@ -10,7 +10,9 @@ data class MineState(
     val isLoading: Boolean = false,
     val message: String = "MineScreen",
     val userName: String = "用户",
-    val isLoggedIn: Boolean = false
+    val isLoggedIn: Boolean = false,
+    val userId: Long? = null,
+    val avatarUrl: String? = null
 ) : MviState
 
 // Intent: 用户意图
@@ -19,6 +21,7 @@ sealed class MineIntent : MviIntent {
     data object Login : MineIntent()
     data object Logout : MineIntent()
     data object RefreshProfile : MineIntent()
+    data class LoginWithCookie(val cookie: String) : MineIntent()
 }
 
 // Effect: 一次性效果

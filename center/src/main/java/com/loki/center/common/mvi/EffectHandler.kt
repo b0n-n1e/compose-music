@@ -1,10 +1,8 @@
-package com.loki.center.architecture
+package com.loki.center.common.mvi
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import com.loki.center.common.mvi.MviEffect
-import com.loki.center.common.mvi.ToastEffect
 import kotlinx.coroutines.flow.SharedFlow
 import com.loki.utils.extension.showToast
 
@@ -14,8 +12,7 @@ import com.loki.utils.extension.showToast
 @Composable
 fun <T : MviEffect> HandleEffects(
     effects: SharedFlow<T>,
-    onEffect: (T) -> Unit
-) {
+    onEffect: (T) -> Unit) {
     val context = LocalContext.current
     
     LaunchedEffect(Unit) {

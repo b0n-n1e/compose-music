@@ -7,6 +7,9 @@ import androidx.room.PrimaryKey
 data class UserLoginEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val cookie: String,
-    val loginTime: Long = System.currentTimeMillis()
+    val loginTime: Long = System.currentTimeMillis(),
+    val userId: Long? = null,
+    val nickname: String? = null,
+    val avatarUrl: String? = null
     // 可扩展更多字段，如userId、nickname、avatar等
 ) 
